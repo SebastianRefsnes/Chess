@@ -1,17 +1,101 @@
-class Piece{
-    constructor(position,type,color){
+class Piece {
+    constructor(position, type, color) {
         this.position = position;
         this.type = type;
         this.color = color;
         this.anPassant = false;
+        this.isMoving = false;
     }
-    canAnPassant(){
+
+    canAnPassant() {
         return this.anPassant;
     }
-    tryMove(newPos,grid){
-        if(newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0) {
-            if (typeof grid[newPos.y][newPos.x] !== "object") {
-                this.position = newPos;
+
+    tryMove(newPos, grid) {
+        if (newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0 && this.position.y < 8 && this.position.y >= 0 && this.position.x < 8 && this.position.x >= 0) {
+
+            let newTile = grid[newPos.y][newPos.x];
+            let capture = typeof newTile == "object";
+            let currentTile = grid[this.position.y][this.position.x];
+            let doMove = false;
+
+            let deltaX = this.position.x - newPos.x;
+            let deltaY = this.position.y - newPos.y;
+            deltaX = Math.abs(deltaX);
+            deltaY = Math.abs(deltaY);
+
+            switch (currentTile.type) {
+                case "rook":
+                    if (deltaY === 0 || deltaX === 0) {
+                        if (capture) {
+                            if (newTile.color !== currentTile.color) {
+                                doMove = true;
+                            }
+                        } else {
+                            doMove = true;
+                        }
+                    }
+                    break;
+                case "bishop":
+                    if (deltaX === deltaY) {
+                        if (capture) {
+                            if (newTile.color !== currentTile.color) {
+                                doMove = true;
+                            }
+                        } else {
+                            doMove = true;
+                        }
+                    }
+                    break;
+                case "knight":
+                    if ((deltaX === 2 && deltaY === 1) || (deltaX === 1 && deltaY === 2)) {
+                        if (capture) {
+                            if (newTile.color !== currentTile.color) {
+                                doMove = true;
+                            }
+                        } else {
+                            doMove = true;
+                        }
+                    }
+                    break;
+                case "king":
+                    if (deltaX <= 1 && deltaY <= 1) {
+                        if (capture) {
+                            if (newTile.color !== currentTile.color) {
+                                doMove = true;
+                            }
+                        } else {
+                            doMove = true;
+                        }
+                    }
+                    break;
+                case "queen":
+                    if (deltaX === deltaY || deltaY === 0 || deltaX === 0) {
+                        if (capture) {
+                            if (newTile.color !== currentTile.color) {
+                                doMove = true;
+                            }
+                        } else {
+                            doMove = true;
+                        }
+                    }
+                    break;
+                case "pawn":
+                    if (capture && deltaY === 1 && deltaX === 1) {
+                        if (newTile.color !== currentTile.color) {
+                            doMove = true;
+                        }
+                    } else if (!capture && deltaY === 1 && deltaX === 0) {
+                        doMove = true;
+                    }
+                    break;
+
+            }
+            if (doMove) {
+                grid[newPos.y][newPos.x] = currentTile;
+                grid[this.position.y][this.position.x] = "blank";
+                currentTile.position.x = newPos.x;
+                currentTile.position.y = newPos.y;
             }
         }
     }
