@@ -69,7 +69,7 @@ class Board{
                     }
 
                     //Draw piece based on sprite sheet
-                    context.drawImage(this.sprites,(405/6)*x,135-(135/y),405/6,135/2,square.position.x * blockSizeX, square.position.y * blockSizeY,405/6,135/2);
+                    context.drawImage(this.sprites,(405/6)*x,135-(135/y),405/6,135/2,square.position.x * blockSizeX, square.position.y * blockSizeY,blockSizeX,blockSizeY);
                 }
             });
         });
