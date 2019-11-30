@@ -4,6 +4,7 @@ class Piece {
         this.type = type;
         this.color = color;
         this.anPassant = false;
+        this.moveOne = true;
         this.isMoving = false;
     }
 
@@ -12,7 +13,7 @@ class Piece {
     }
 
     tryMove(newPos, grid) {
-        if (newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0 && this.position.y < 8 && this.position.y >= 0 && this.position.x < 8 && this.position.x >= 0) {
+        if (newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0 && this.position.y < 8 && this.position.y >= 0 && this.position.x < 8 && this.position.x >= 0 && this.color === board.turn) {
 
             let newTile = grid[newPos.y][newPos.x];
             let capture = typeof newTile == "object";
@@ -87,15 +88,23 @@ class Piece {
                         }
                     } else if (!capture && deltaY === 1 && deltaX === 0) {
                         doMove = true;
+                    }else if (!capture && deltaY === 2 && deltaX === 0 && this.moveOne) {
+                        doMove = true;
                     }
                     break;
 
             }
             if (doMove) {
+                this.moveOne = false;
                 grid[newPos.y][newPos.x] = currentTile;
                 grid[this.position.y][this.position.x] = "blank";
                 currentTile.position.x = newPos.x;
                 currentTile.position.y = newPos.y;
+                if(this.color === "black") {
+                    board.turn = "white";
+                }else {
+                    board.turn = "black";
+                }
             }
         }
     }

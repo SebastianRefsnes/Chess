@@ -4,6 +4,7 @@ class Board {
         this.width = width;
         this.height = height;
         this.sprites = loadImage("Assets/pieces.png");
+        this.turn = "white";
     }
 
     resetBoard() {
@@ -31,7 +32,7 @@ class Board {
         //Background
         let blockSizeX = context.canvas.clientWidth / this.width;
         let blockSizeY = context.canvas.clientHeight / this.height;
-        context.fillStyle = "rgb(45,45,45)";
+        context.fillStyle = "#8B4513";
         context.fillRect(0, 0, context.canvas.clientWidth, context.canvas.clientHeight);
         context.fillStyle = "white";
         for (let i = 0; i < 8; i++) {
