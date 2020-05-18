@@ -127,6 +127,7 @@ class Piece {
                     }
                 }
                 if (!cancelMove) {
+                    if(this.willCheck(this.position, newPos)) return;
                     this.moveOne = false;
                     grid[newPos.y][newPos.x] = currentTile;
                     grid[this.position.y][this.position.x] = "blank";
@@ -140,5 +141,23 @@ class Piece {
                 }
             }
         }
+    }
+    willCheck(oldPos, newPos) {
+        let turn = board.turn;
+        let grid = [...board.grid];
+        let dudTile = grid[oldPos.y][oldPos.x];
+        let kingPos;
+        grid[newPos.y][newPos.x] = dudTile;
+        grid[oldPos.y][oldPos.x] = "blank";
+        const H = grid.length;
+        const W = grid[0].length;
+        for(let row = 0; row < H; row++){
+            for(let col = 0; col < W; col++){
+                if(typeof grid[row][col] == "object" && grid[row][col].type == "king" && grid[row][col].color == turn){
+                    kingPos = grid[row][col].position;
+                }
+            }
+        }
+        //Pieces
     }
 }
