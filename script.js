@@ -4,32 +4,33 @@ canvas = "";
 ctx = "";
 board = "";
 moving = false;
-oldLoc = "";
+loc = "";
 mouseLoc = new Vector(0, 0);
 selectedTile = "";
 
 window.onmousedown = (e) => {
+    if(e.which != 1) return;
     moving = true;
     let rect = e.target.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
-    let loc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
-    oldLoc = loc;
+    loc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
     selectedTile = board.getTile(loc);
     selectedTile.isMoving = true;
 };
 window.onmouseup = (e) => {
+    if(e.which != 1) return;
     if (moving) {
         let rect = e.target.getBoundingClientRect();
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
-        let loc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
-        if (typeof selectedTile == "object") selectedTile.tryMove(loc, board.grid);
+        let tLoc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
+        if (typeof selectedTile == "object") selectedTile.tryMove(tLoc, board.grid);
     }
     moving = false;
     selectedTile.isMoving = false;
     selectedTile = "";
-    oldLoc = ""
+    loc = ""
 };
 window.onmousemove = (e) => {
     let rect = e.target.getBoundingClientRect();

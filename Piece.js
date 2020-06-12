@@ -103,14 +103,12 @@ class Piece {
                             //Straight up or down
                             if (directionX !== 0) {
                                 if (typeof grid[this.position.y][this.position.x + (directionX / count)*(i+1)] === "object") {
-                                    console.log("collided")
                                     cancelMove = true;
                                     break;
                                 }
                             } else {
                                 //Straight left or right
                                 if (typeof grid[this.position.y + (directionY / count)*(i+1)][this.position.x] === "object") {
-                                    console.log("collided")
                                     cancelMove = true;
                                     break;
                                 }
@@ -118,7 +116,6 @@ class Piece {
                                 //Diagonal
                         } else {
                             if(typeof grid[this.position.y + (directionY / count)*(i+1)][this.position.x + (directionX / count)*(i+1)] === "object"){
-                                console.log("collided");
                                 cancelMove = true;
                                 break;
                             }
@@ -131,8 +128,7 @@ class Piece {
                     this.moveOne = false;
                     grid[newPos.y][newPos.x] = currentTile;
                     grid[this.position.y][this.position.x] = "blank";
-                    currentTile.position.x = newPos.x;
-                    currentTile.position.y = newPos.y;
+                    currentTile.position = new Vector(newPos.x,newPos.y);
                     if (this.color === "black") {
                         board.turn = "white";
                     } else {
@@ -143,21 +139,65 @@ class Piece {
         }
     }
     willCheck(oldPos, newPos) {
-        let turn = board.turn;
-        let grid = [...board.grid];
-        let dudTile = grid[oldPos.y][oldPos.x];
         let kingPos;
-        grid[newPos.y][newPos.x] = dudTile;
+        let grid = [[]];
+        board.grid.forEach((inner, i) => {
+            grid[i] = [...board.grid[i]];
+        });
+        grid[newPos.y][newPos.x] = grid[oldPos.y][oldPos.x];
         grid[oldPos.y][oldPos.x] = "blank";
+        //grid[newPos.y][newPos.x].position = newPos;
         const H = grid.length;
         const W = grid[0].length;
         for(let row = 0; row < H; row++){
             for(let col = 0; col < W; col++){
-                if(typeof grid[row][col] == "object" && grid[row][col].type == "king" && grid[row][col].color == turn){
+                if(typeof grid[row][col] == "object" && grid[row][col].type == "king" && grid[row][col].color == board.turn){
                     kingPos = grid[row][col].position;
                 }
             }
         }
         //Pieces
+        //Rook & queen(rook)
+        let mult = 1;
+        let banned = new Set();
+        while(banned.size < 8){
+            for(let delX = -1; delX <= 1; delX++){
+                for(let delY = -1; delY <= 1; delY++){
+                    if(banned.has(`${delX},${delY}`)) continue;
+                        let tileY = kingPos.y + (delY*mult);
+                        let tileX = kingPos.x + (delX*mult);
+                        if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileY >= grid.length){
+                            banned.add(`${delX},${delY}`);
+                            continue;
+                        }
+                        let tile = grid[tileY][tileX];
+                        if((delX == 0 || delY == 0) && delX != delY){
+                        //Rook (Queen)
+                        if(typeof tile == "object"){
+                            if(tile.color == board.turn || tile.type != "rook" || tile.type != "queen"){
+                                banned.add(`${delX},${delY}`);
+                            }
+                            if(tile.color != board.turn && (tile.type == "rook" || tile.type == "queen")){
+                                console.log(tile);
+                                return true;
+                            }
+                        }
+                    }
+                    if(delX != 0 && delY != 0){
+                        //Bishop (Queen)
+                        if(typeof tile == "object"){
+                            if(tile.color == board.turn || tile.type != "bishop" || tile.type != "queen"){
+                                banned.add(`${delX},${delY}`);
+                            }
+                            if(tile.color != board.turn && (tile.type == "bishop" || tile.type == "queen")){
+                                console.log(tile);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            mult++;
+        }
     }
 }

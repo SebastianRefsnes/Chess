@@ -44,8 +44,8 @@ class Board {
         }
         //context.drawImage(this.sprites,0,100);
         //Pieces
-        this.grid.forEach((inner, i) => {
-            inner.forEach((square, j) => {
+        this.grid.forEach((inner) => {
+            inner.forEach((square) => {
                 if (typeof square == "object") {
                     let pos = getSpriteLoc(square);
 
