@@ -158,15 +158,18 @@ class Piece {
         }
         //Pieces
         //Rook & queen(rook)
-        let mult = 1;
+        let mult = 0;
         let banned = new Set();
-        while(banned.size < 8){
+        let maxim = 0;
+        while(banned.size < 16 && maxim < 100){
+            maxim++;
+            mult++;
             for(let delX = -1; delX <= 1; delX++){
                 for(let delY = -1; delY <= 1; delY++){
                     if(banned.has(`${delX},${delY}`)) continue;
                         let tileY = kingPos.y + (delY*mult);
                         let tileX = kingPos.x + (delX*mult);
-                        if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileY >= grid.length){
+                        if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid.length){
                             banned.add(`${delX},${delY}`);
                             continue;
                         }
@@ -197,7 +200,41 @@ class Piece {
                     }
                 }
             }
-            mult++;
+            //Knight & King
+            if(mult == 1){
+                for(let delX = -2; delX <= 2; delX++){
+                    for(let delY = -2; delY <= 2; delY++){
+                        
+                        let tileY = kingPos.y + delY;
+                        let tileX = kingPos.x + delX;
+                        //Knight
+                        if((delX != 0 && delY != 0) && ((Math.abs(delX) % 2 == 0 && Math.abs(delY) % 2 == 1) || (Math.abs(delX) % 2 == 1 && Math.abs(delY) % 2 == 0))){
+                            console.log("brr")
+                            banned.add(`${delX},${delY}`);
+                            if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid.length) continue;
+                            let tile = grid[tileY][tileX];
+                            if(typeof tile == "object"){
+                                if(tile.color != board.turn && tile.type == "knight"){
+                                    console.log(tile);
+                                    return true;
+                                }
+                            }
+                        }
+                        //King
+                        if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid.length) continue;
+                        if(delX > -2 && delX < 2 && delY > -2 && delY < 2){
+                            let tile = grid[tileY][tileX];
+                            if(typeof tile == "object"){
+                                if(tile.color != board.turn && tile.type == "king"){
+                                    console.log(tile);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+        if(maxim > 20) console.log(banned)
     }
 }
