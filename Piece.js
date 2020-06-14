@@ -8,8 +8,8 @@ class Piece {
         this.isMoving = false;
     }
 
-
-    tryMove(newPos, grid) {
+    tryMove(newPos, masterBoard) {
+        let grid = masterBoard.grid;
         if (newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0 && this.position.y < 8 && this.position.y >= 0 && this.position.x < 8 && this.position.x >= 0 && this.color === board.turn) {
 
             let newTile = grid[newPos.y][newPos.x];
@@ -124,7 +124,7 @@ class Piece {
                     }
                 }
                 if (!cancelMove) {
-                    if(this.willCheck(this.position, newPos)) return;
+                    if(this.willCheck(JSON.parse(JSON.stringify(this.position)), JSON.parse(JSON.stringify(newPos)), JSON.parse(JSON.stringify(masterBoard)))) return;
                     this.moveOne = false;
                     grid[newPos.y][newPos.x] = currentTile;
                     grid[this.position.y][this.position.x] = "blank";
@@ -138,21 +138,21 @@ class Piece {
             }
         }
     }
-    willCheck(oldPos, newPos) {
+    willCheck(oldPos, newPos, mBoard) {
         let kingPos;
         let grid = [[]];
         board.grid.forEach((inner, i) => {
-            grid[i] = [...board.grid[i]];
+            grid[i] = [...mBoard.grid[i]];
         });
         grid[newPos.y][newPos.x] = grid[oldPos.y][oldPos.x];
         grid[oldPos.y][oldPos.x] = "blank";
-        //grid[newPos.y][newPos.x].position = newPos;
+        grid[newPos.y][newPos.x].position = newPos;
         const H = grid.length;
         const W = grid[0].length;
         for(let row = 0; row < H; row++){
             for(let col = 0; col < W; col++){
                 if(typeof grid[row][col] == "object" && grid[row][col].type == "king" && grid[row][col].color == board.turn){
-                    kingPos = grid[row][col].position;
+                    kingPos = JSON.parse(JSON.stringify(grid[row][col].position));
                 }
             }
         }

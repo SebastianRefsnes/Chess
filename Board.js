@@ -48,7 +48,6 @@ class Board {
             inner.forEach((square) => {
                 if (typeof square == "object") {
                     let pos = getSpriteLoc(square);
-
                     //Draw piece based on sprite sheet
                     if (!square.isMoving) context.drawImage(this.sprites, (405 / 6) * pos.x, 135 - (135 / pos.y), 405 / 6, 135 / 2, square.position.x * blockSizeX, square.position.y * blockSizeY, blockSizeX, blockSizeY);
                 }

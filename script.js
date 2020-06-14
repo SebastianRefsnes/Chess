@@ -2,11 +2,13 @@ window.onload = setup;
 //Global
 canvas = "";
 ctx = "";
-board = "";
 moving = false;
 loc = "";
 mouseLoc = new Vector(0, 0);
 selectedTile = "";
+
+//priv
+let board = "";
 
 window.onmousedown = (e) => {
     if(e.which != 1) return;
@@ -25,7 +27,7 @@ window.onmouseup = (e) => {
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
         let tLoc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
-        if (typeof selectedTile == "object") selectedTile.tryMove(tLoc, board.grid);
+        if (typeof selectedTile == "object") selectedTile.tryMove(tLoc, board);
     }
     moving = false;
     selectedTile.isMoving = false;
@@ -41,7 +43,7 @@ window.onmousemove = (e) => {
 function setup() {
     canvas = document.getElementById("chessBoard");
     ctx = canvas.getContext("2d");
-    board = new Board(8, 8);
+    board = new Board();
     canvas.getBoundingClientRect();
     board.resetBoard();
     setInterval(gameLoop, 1000 / 20);
