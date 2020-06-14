@@ -160,9 +160,7 @@ class Piece {
         //Rook & queen(rook)
         let mult = 0;
         let banned = new Set();
-        let maxim = 0;
-        while(banned.size < 16 && maxim < 100){
-            maxim++;
+        while(banned.size < 16){
             mult++;
             for(let delX = -1; delX <= 1; delX++){
                 for(let delY = -1; delY <= 1; delY++){
@@ -209,7 +207,6 @@ class Piece {
                         let tileX = kingPos.x + delX;
                         //Knight
                         if((delX != 0 && delY != 0) && ((Math.abs(delX) % 2 == 0 && Math.abs(delY) % 2 == 1) || (Math.abs(delX) % 2 == 1 && Math.abs(delY) % 2 == 0))){
-                            console.log("brr")
                             banned.add(`${delX},${delY}`);
                             if(tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid.length) continue;
                             let tile = grid[tileY][tileX];
@@ -235,6 +232,5 @@ class Piece {
                 }
             }
         }
-        if(maxim > 20) console.log(banned)
     }
 }
