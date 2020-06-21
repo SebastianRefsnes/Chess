@@ -1,6 +1,8 @@
 class Board {
     constructor(width = 8, height = 8) {
-        this.grid = [[]];
+        this.grid = [
+            []
+        ];
         this.width = width;
         this.height = height;
         this.sprites = loadImage("Assets/pieces.png");

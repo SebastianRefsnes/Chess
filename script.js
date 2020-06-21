@@ -11,7 +11,7 @@ selectedTile = "";
 let board = "";
 
 window.onmousedown = (e) => {
-    if(e.which != 1) return;
+    if (e.which != 1) return;
     moving = true;
     let rect = e.target.getBoundingClientRect();
     let x = e.clientX - rect.left;
@@ -21,7 +21,7 @@ window.onmousedown = (e) => {
     selectedTile.isMoving = true;
 };
 window.onmouseup = (e) => {
-    if(e.which != 1) return;
+    if (e.which != 1) return;
     if (moving) {
         let rect = e.target.getBoundingClientRect();
         let x = e.clientX - rect.left;

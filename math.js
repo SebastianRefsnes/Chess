@@ -24,7 +24,10 @@ class Vector {
 }
 
 function getDistance(vectorA, vectorB) {
-    let subVec = {x: 0, y: 0};
+    let subVec = {
+        x: 0,
+        y: 0
+    };
     subVec.x = vectorA.x - vectorB.x;
     subVec.y = vectorA.y - vectorB.y;
 
@@ -33,7 +36,7 @@ function getDistance(vectorA, vectorB) {
 }
 
 function getMinimum(a, b) {
-        return a < b ? a : b;
+    return a < b ? a : b;
 }
 
 function toRadian(degree) {
