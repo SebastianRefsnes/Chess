@@ -46,7 +46,7 @@ function setup() {
     board = new Board();
     canvas.getBoundingClientRect();
     board.resetBoard();
-    setInterval(gameLoop, 1000 / 20);
+    setInterval(gameLoop, 1000 / 60);
 }
 
 function gameLoop() {
