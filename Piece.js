@@ -16,6 +16,8 @@ class Piece {
             let capture = typeof newTile == "object";
             let currentTile = grid[this.position.y][this.position.x];
             let legalPattern = false;
+            let castleLeft = false,
+                castleRight = false;
 
             let deltaX = this.position.x - newPos.x;
             let deltaY = this.position.y - newPos.y;
@@ -65,6 +67,31 @@ class Piece {
                         } else {
                             legalPattern = true;
                         }
+                    } else if (deltaX == 2 && deltaY == 0) {
+                        //Castling attempt
+                        let clear = true;
+                        if (this.position.x < newPos.x) {
+                            //Right side castle
+                            for (let i = 1; i <= 3; i++) {
+                                if (i == 3) {
+                                    if (typeof grid[this.position.y][this.position.x + i] != "object" || !grid[this.position.y][this.position.x + i].moveOne) clear = false;
+                                    continue;
+                                }
+                                if (typeof grid[this.position.y][this.position.x + i] == "object") clear = false;
+                            }
+                            if (clear) castleRight = true;
+                        } else {
+                            //Left side castle
+                            for (let i = -1; i >= -4; i--) {
+                                if (i == -4) {
+                                    if (typeof grid[this.position.y][this.position.x + i] != "object" || !grid[this.position.y][this.position.x + i].moveOne) clear = false;
+                                    continue;
+                                }
+                                if (typeof grid[this.position.y][this.position.x + i] == "object") clear = false;
+                            }
+                            if (clear) castleLeft = true;
+                        }
+                        if (castleRight || castleLeft) legalPattern = true;
                     }
                     break;
                 case "queen":
@@ -134,6 +161,17 @@ class Piece {
                     } else {
                         board.turn = "black";
                     }
+                }
+            }
+            if (castleLeft || castleRight) {
+                if (castleRight) {
+                    grid[this.position.y][this.position.x - 1] = grid[this.position.y][this.position.x + 1];
+                    grid[this.position.y][this.position.x + 1] = "blank";
+                    grid[this.position.y][this.position.x - 1].position = new Vector(this.position.x - 1, this.position.y);
+                } else {
+                    grid[this.position.y][this.position.x + 1] = grid[this.position.y][this.position.x - 2];
+                    grid[this.position.y][this.position.x - 2] = "blank";
+                    grid[this.position.y][this.position.x + 1].position = new Vector(this.position.x + 1, this.position.y);
                 }
             }
         }
