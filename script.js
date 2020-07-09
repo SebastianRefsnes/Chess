@@ -1,14 +1,14 @@
 window.onload = setup;
 //Global
-canvas = "";
-ctx = "";
+canvas = '';
+ctx = '';
 moving = false;
-loc = "";
+loc = '';
 mouseLoc = new Vector(0, 0);
-selectedTile = "";
+selectedTile = '';
 
 //priv
-let board = "";
+let board = '';
 
 window.onmousedown = (e) => {
     if (e.which != 1) return;
@@ -27,12 +27,12 @@ window.onmouseup = (e) => {
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
         let tLoc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
-        if (typeof selectedTile == "object") selectedTile.tryMove(tLoc, board);
+        if (typeof selectedTile == 'object') board.tryMove(selectedTile, tLoc);
     }
     moving = false;
     selectedTile.isMoving = false;
-    selectedTile = "";
-    loc = ""
+    selectedTile = '';
+    loc = '';
 };
 window.onmousemove = (e) => {
     let rect = e.target.getBoundingClientRect();
@@ -41,8 +41,8 @@ window.onmousemove = (e) => {
 };
 
 function setup() {
-    canvas = document.getElementById("chessBoard");
-    ctx = canvas.getContext("2d");
+    canvas = document.getElementById('chessBoard');
+    ctx = canvas.getContext('2d');
     board = new Board();
     canvas.getBoundingClientRect();
     board.resetBoard();
@@ -51,11 +51,11 @@ function setup() {
 
 function gameLoop() {
     board.draw(ctx);
-    if (moving && typeof selectedTile == "object") {
+    if (moving && typeof selectedTile == 'object') {
         let blockSizeX = canvas.width / 8;
         let blockSizeY = canvas.height / 8;
 
         let pos = getSpriteLoc(selectedTile);
-        ctx.drawImage(board.sprites, (405 / 6) * pos.x, 135 - (135 / pos.y), 405 / 6, 135 / 2, mouseLoc.x - blockSizeX / 2, mouseLoc.y - blockSizeY / 2, blockSizeX, blockSizeY);
+        ctx.drawImage(board.sprites, (405 / 6) * pos.x, 135 - 135 / pos.y, 405 / 6, 135 / 2, mouseLoc.x - blockSizeX / 2, mouseLoc.y - blockSizeY / 2, blockSizeX, blockSizeY);
     }
 }
