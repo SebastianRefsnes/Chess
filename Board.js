@@ -37,12 +37,27 @@ class Board {
         context.fillStyle = '#8B4513';
         context.fillRect(0, 0, context.canvas.clientWidth, context.canvas.clientHeight);
         context.fillStyle = 'white';
+        //Background
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if ((j + i + 1) % 2 == 0) {
                     context.fillRect(i * blockSizeX, j * blockSizeY, blockSizeX, blockSizeY);
                 }
             }
+        }
+        //Lines
+        context.strokeStyle = 'black';
+        for (let i = 0; i <= 8; i++) {
+            context.beginPath();
+            context.moveTo(blockSizeX * i, 0);
+            context.lineTo(blockSizeX * i, blockSizeY * 8);
+            context.stroke();
+        }
+        for (let i = 0; i <= 8; i++) {
+            context.beginPath();
+            context.moveTo(0, blockSizeY * i);
+            context.lineTo(blockSizeX * 8, blockSizeY * i);
+            context.stroke();
         }
         if (hiTile != '') {
             const moves = this.getLegalMoves(hiTile);
