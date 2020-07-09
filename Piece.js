@@ -6,5 +6,6 @@ class Piece {
         this.anPassant = false;
         this.moveOne = true;
         this.isMoving = false;
+        this.passantMove = 0;
     }
 }

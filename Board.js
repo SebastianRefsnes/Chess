@@ -5,6 +5,7 @@ class Board {
         this.height = height;
         this.sprites = loadImage('Assets/pieces.png');
         this.turn = 'white';
+        this.moveCount = 0;
     }
 
     resetBoard() {
@@ -104,9 +105,17 @@ class Board {
                 } else {
                     board.turn = 'black';
                 }
+                this.moveCount++;
                 return;
             }
-            //Normal moves(non castle, non an passant)
+            if (piece.type == 'pawn' && newPos.x != piece.position.x && this.grid[newPos.y][newPos.x] == 'blank') {
+                //An passant
+                this.grid[piece.position.y][newPos.x] = 'blank';
+            }
+            if (piece.type == 'pawn' && Math.abs(piece.position.y - newPos.y) > 1) {
+                piece.passantMove = this.moveCount + 1;
+            }
+            //Normal moves(non castle)
             piece.moveOne = false;
             let oldX = JSON.parse(JSON.stringify(piece.position.x)),
                 oldY = JSON.parse(JSON.stringify(piece.position.y));
@@ -118,6 +127,7 @@ class Board {
             } else {
                 board.turn = 'black';
             }
+            this.moveCount++;
         }
     }
     getLegalMoves(piece) {
@@ -139,6 +149,20 @@ class Board {
                             if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
                             legalMoves.push(new Vector(tileX, tileY));
                         } else {
+                            if (typeof tile != 'object') {
+                                if (typeof this.grid[piece.position.y][tileX] == 'object' && this.grid[piece.position.y][tileX].type == 'pawn') {
+                                    if (this.grid[piece.position.y][tileX].passantMove == this.moveCount && this.grid[piece.position.y][tileX].color != piece.color) {
+                                        let temp = JSON.parse(JSON.stringify(this.grid[piece.position.y][tileX]));
+                                        this.grid[piece.position.y][tileX] = 'blank';
+                                        if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) {
+                                            this.grid[piece.position.y][tileX] = temp;
+                                            continue;
+                                        }
+                                        legalMoves.push(new Vector(tileX, tileY));
+                                        this.grid[piece.position.y][tileX] = temp;
+                                    }
+                                }
+                            }
                             if (typeof tile != 'object' || tile.color === piece.color) continue;
                             if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
                             legalMoves.push(new Vector(tileX, tileY));
