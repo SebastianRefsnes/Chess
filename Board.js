@@ -47,6 +47,7 @@ class Board {
         }
         //Lines
         context.strokeStyle = 'black';
+        context.lineWidth = 2;
         for (let i = 0; i <= 8; i++) {
             context.beginPath();
             context.moveTo(blockSizeX * i, 0);
@@ -63,7 +64,7 @@ class Board {
             const moves = this.getLegalMoves(hiTile);
             context.fillStyle = 'rgba(50,100,45)';
             moves.forEach((mv) => {
-                context.fillRect(mv.x * blockSizeX, mv.y * blockSizeY, blockSizeX, blockSizeY);
+                context.fillRect(mv.x * blockSizeX + 1, mv.y * blockSizeY + 1, blockSizeX - 1.5, blockSizeY - 1.5);
             });
         }
         //context.drawImage(this.sprites,0,100);
