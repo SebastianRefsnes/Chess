@@ -44,6 +44,13 @@ class Board {
                 }
             }
         }
+        if (hiTile != '') {
+            const moves = this.getLegalMoves(hiTile);
+            context.fillStyle = 'rgba(50,100,45)';
+            moves.forEach((mv) => {
+                context.fillRect(mv.x * blockSizeX, mv.y * blockSizeY, blockSizeX, blockSizeY);
+            });
+        }
         //context.drawImage(this.sprites,0,100);
         //Pieces
         this.grid.forEach((inner) => {
@@ -108,6 +115,7 @@ class Board {
                 }
                 this.moveCount++;
                 this.checkGameOver();
+                hiTile = '';
                 return;
             }
             if (piece.type == 'pawn' && newPos.x != piece.position.x && this.grid[newPos.y][newPos.x] == 'blank') {
@@ -131,6 +139,7 @@ class Board {
             }
             this.checkGameOver();
             this.moveCount++;
+            hiTile = '';
         }
     }
 

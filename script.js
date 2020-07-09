@@ -6,6 +6,7 @@ moving = false;
 loc = '';
 mouseLoc = new Vector(0, 0);
 selectedTile = '';
+hiTile = '';
 
 //priv
 let board = '';
@@ -18,6 +19,7 @@ window.onmousedown = (e) => {
     let y = e.clientY - rect.top;
     loc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
     selectedTile = board.getTile(loc);
+    hiTile = board.getTile(loc);
     selectedTile.isMoving = true;
 };
 window.onmouseup = (e) => {
