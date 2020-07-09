@@ -71,169 +71,282 @@ class Board {
     }
 
     tryMove(piece, newPos) {
-        let grid = this.grid;
-        if (newPos.y < 8 && newPos.y >= 0 && newPos.x < 8 && newPos.x >= 0 && piece.color === board.turn) {
-            let newTile = grid[newPos.y][newPos.x];
-            let capture = typeof newTile == 'object';
-            let legalPattern = false;
-            let castleLeft = false,
-                castleRight = false;
+        if (piece.color != this.turn) return;
+        let moves = this.getLegalMoves(piece);
+        console.log(moves);
+        if (moves.find((move) => JSON.stringify(move) == JSON.stringify(newPos))) {
+            if (piece.type == 'king' && Math.abs(piece.position.x - newPos.x) > 1) {
+                //Castle
+                if (piece.position.x < newPos.x) {
+                    //Right side castle
+                    this.grid[piece.position.y][piece.position.x + 2] = piece;
+                    this.grid[piece.position.y][piece.position.x] = 'blank';
+                    piece.position = new Vector(piece.position.x + 2, piece.position.y);
 
-            let deltaX = piece.position.x - newPos.x;
-            let deltaY = piece.position.y - newPos.y;
-            deltaX = Math.abs(deltaX);
-            deltaY = Math.abs(deltaY);
+                    this.grid[piece.position.y][piece.position.x - 1] = this.grid[piece.position.y][piece.position.x + 1];
+                    this.grid[piece.position.y][piece.position.x + 1] = 'blank';
+                    this.grid[piece.position.y][piece.position.x - 1].position = new Vector(piece.position.x - 1, piece.position.y);
+                    this.grid[piece.position.y][piece.position.x - 1].moveOne = false;
+                } else {
+                    //Left side castle
+                    this.grid[piece.position.y][piece.position.x - 2] = piece;
+                    this.grid[piece.position.y][piece.position.x] = 'blank';
+                    piece.position = new Vector(piece.position.x - 2, piece.position.y);
 
-            switch (piece.type) {
-                case 'rook':
-                    if (deltaY === 0 || deltaX === 0) {
-                        if (capture) {
-                            if (newTile.color !== piece.color) {
-                                legalPattern = true;
-                            }
-                        } else {
-                            legalPattern = true;
-                        }
-                    }
-                    break;
-                case 'bishop':
-                    if (deltaX === deltaY) {
-                        if (capture) {
-                            if (newTile.color !== piece.color) {
-                                legalPattern = true;
-                            }
-                        } else {
-                            legalPattern = true;
-                        }
-                    }
-                    break;
-                case 'knight':
-                    if ((deltaX === 2 && deltaY === 1) || (deltaX === 1 && deltaY === 2)) {
-                        if (capture) {
-                            if (newTile.color !== piece.color) {
-                                legalPattern = true;
-                            }
-                        } else {
-                            legalPattern = true;
-                        }
-                    }
-                    break;
-                case 'king':
-                    if (deltaX <= 1 && deltaY <= 1) {
-                        if (capture) {
-                            if (newTile.color !== piece.color) {
-                                legalPattern = true;
-                            }
-                        } else {
-                            legalPattern = true;
-                        }
-                    } else if (deltaX == 2 && deltaY == 0) {
-                        //Castling attempt
-                        let clear = true;
-                        if (piece.position.x < newPos.x) {
-                            //Right side castle
-                            for (let i = 1; i <= 3; i++) {
-                                if (i == 3) {
-                                    if (typeof grid[piece.position.y][piece.position.x + i] != 'object' || !grid[piece.position.y][piece.position.x + i].moveOne) clear = false;
-                                    continue;
-                                }
-                                if (typeof grid[piece.position.y][piece.position.x + i] == 'object') clear = false;
-                            }
-                            if (clear) castleRight = true;
-                        } else {
-                            //Left side castle
-                            for (let i = -1; i >= -4; i--) {
-                                if (i == -4) {
-                                    if (typeof grid[piece.position.y][piece.position.x + i] != 'object' || !grid[piece.position.y][piece.position.x + i].moveOne) clear = false;
-                                    continue;
-                                }
-                                if (typeof grid[piece.position.y][piece.position.x + i] == 'object') clear = false;
-                            }
-                            if (clear) castleLeft = true;
-                        }
-                        if (castleRight || castleLeft) legalPattern = true;
-                    }
-                    break;
-                case 'queen':
-                    if (deltaX === deltaY || deltaY === 0 || deltaX === 0) {
-                        if (capture) {
-                            if (newTile.color !== piece.color) {
-                                legalPattern = true;
-                            }
-                        } else {
-                            legalPattern = true;
-                        }
-                    }
-                    break;
-                case 'pawn':
-                    if (capture && deltaY === 1 && deltaX === 1) {
-                        if (newTile.color !== piece.color) {
-                            legalPattern = true;
-                        }
-                    } else if (!capture && deltaY === 1 && deltaX === 0) {
-                        legalPattern = true;
-                    } else if (!capture && deltaY === 2 && deltaX === 0 && piece.moveOne) {
-                        legalPattern = true;
-                    }
-                    break;
+                    this.grid[piece.position.y][piece.position.x + 1] = this.grid[piece.position.y][piece.position.x - 2];
+                    this.grid[piece.position.y][piece.position.x - 2] = 'blank';
+                    this.grid[piece.position.y][piece.position.x + 1].position = new Vector(piece.position.x + 1, piece.position.y);
+                    this.grid[piece.position.y][piece.position.x + 1].moveOne = false;
+                }
+                piece.moveOne = false;
+                if (piece.color === 'black') {
+                    board.turn = 'white';
+                } else {
+                    board.turn = 'black';
+                }
+                return;
             }
-            if (legalPattern) {
-                let cancelMove = false;
-                if (piece.type !== 'knight' && piece.type !== 'king') {
-                    let count = deltaX < deltaY ? deltaY : deltaX;
-                    let moveType = deltaX === deltaY ? 'diagonal' : 'straight';
-                    let directionX = newPos.x - piece.position.x;
-                    let directionY = newPos.y - piece.position.y;
-                    for (let i = 0; i < count - 1; i++) {
-                        if (moveType === 'straight') {
-                            //Straight up or down
-                            if (directionX !== 0) {
-                                if (typeof grid[piece.position.y][piece.position.x + (directionX / count) * (i + 1)] === 'object') {
-                                    cancelMove = true;
-                                    break;
+            //Normal moves(non castle, non an passant)
+            piece.moveOne = false;
+            let oldX = JSON.parse(JSON.stringify(piece.position.x)),
+                oldY = JSON.parse(JSON.stringify(piece.position.y));
+            piece.position = new Vector(newPos.x, newPos.y);
+            this.grid[piece.position.y][piece.position.x] = piece;
+            this.grid[oldY][oldX] = 'blank';
+            if (piece.color === 'black') {
+                board.turn = 'white';
+            } else {
+                board.turn = 'black';
+            }
+        }
+    }
+    getLegalMoves(piece) {
+        let legalMoves = [];
+        switch (piece.type) {
+            case 'pawn': {
+                for (let delX = -1; delX <= 1; delX++) {
+                    for (let delY = -1; delY <= 1; delY++) {
+                        let tileX = piece.position.x + delX;
+                        let tileY = piece.position.y + delY;
+                        if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) {
+                            continue;
+                        }
+                        let tile = this.grid[tileY][tileX];
+                        if (piece.color === 'white' && delY != -1) continue;
+                        if (piece.color === 'black' && delY != 1) continue;
+                        if (delX == 0) {
+                            if (typeof tile == 'object') continue;
+                            if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                            legalMoves.push(new Vector(tileX, tileY));
+                        } else {
+                            if (typeof tile != 'object' || tile.color === piece.color) continue;
+                            if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                            legalMoves.push(new Vector(tileX, tileY));
+                        }
+                    }
+                }
+                if (piece.moveOne) {
+                    //Move up twice
+                    let tile, tileX, tileY;
+                    for (let delY = -2; delY <= 2; delY++) {
+                        if (delY == 0) continue;
+                        if (piece.color == 'white' && delY > 0) continue;
+                        if (piece.color == 'black' && delY < 0) continue;
+                        tileX = piece.position.x;
+                        tileY = piece.position.y + delY;
+                        tile = this.grid[tileY][tileX];
+                        if (typeof tile == 'object') return legalMoves;
+                    }
+                    if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) return legalMoves;
+                    legalMoves.push(new Vector(tileX, piece.position.y + (piece.color == 'black' ? 2 : -2)));
+                }
+                return legalMoves;
+            }
+            case 'knight': {
+                for (let delX = -2; delX <= 2; delX++) {
+                    for (let delY = -2; delY <= 2; delY++) {
+                        if (delX != 0 && delY != 0 && ((Math.abs(delX) % 2 == 0 && Math.abs(delY) % 2 == 1) || (Math.abs(delX) % 2 == 1 && Math.abs(delY) % 2 == 0))) {
+                            let tileX = piece.position.x + delX;
+                            let tileY = piece.position.y + delY;
+                            if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) {
+                                continue;
+                            }
+                            let tile = this.grid[tileY][tileX];
+                            if (typeof tile == 'object' && tile.color == piece.color) continue;
+                            if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                            legalMoves.push(new Vector(tileX, tileY));
+                        }
+                    }
+                }
+                return legalMoves;
+            }
+            case 'bishop': {
+                let mult = 1;
+                let banned = new Set();
+                while (banned.size < 4) {
+                    for (let delX = -1; delX <= 1; delX++) {
+                        for (let delY = -1; delY <= 1; delY++) {
+                            if (delX == 0 && 0 == delY) continue;
+                            if (banned.has(`${delX},${delY}`)) continue;
+                            if (delX != 0 && delY != 0) {
+                                let tileX = piece.position.x + delX * mult;
+                                let tileY = piece.position.y + delY * mult;
+                                if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) {
+                                    banned.add(`${delX},${delY}`);
+                                    continue;
+                                }
+                                let tile = this.grid[tileY][tileX];
+                                if (typeof tile == 'object') {
+                                    if (tile.color === piece.color) {
+                                        banned.add(`${delX},${delY}`);
+                                        continue;
+                                    } else {
+                                        banned.add(`${delX},${delY}`);
+                                        if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                        legalMoves.push(new Vector(tileX, tileY));
+                                    }
+                                } else {
+                                    if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                    legalMoves.push(new Vector(tileX, tileY));
+                                }
+                            }
+                        }
+                    }
+                    mult++;
+                }
+                return legalMoves;
+            }
+            case 'rook': {
+                let mult = 1;
+                let banned = new Set();
+                while (banned.size < 4) {
+                    for (let delX = -1; delX <= 1; delX++) {
+                        for (let delY = -1; delY <= 1; delY++) {
+                            if (delX == 0 && 0 == delY) continue;
+                            if (banned.has(`${delX},${delY}`)) continue;
+                            if ((delX == 0 && delY != 0) || (delX != 0 && delY == 0)) {
+                                let tileX = piece.position.x + delX * mult;
+                                let tileY = piece.position.y + delY * mult;
+                                if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) {
+                                    banned.add(`${delX},${delY}`);
+                                    continue;
+                                }
+                                let tile = this.grid[tileY][tileX];
+                                if (typeof tile == 'object') {
+                                    if (tile.color === piece.color) {
+                                        banned.add(`${delX},${delY}`);
+                                        continue;
+                                    } else {
+                                        banned.add(`${delX},${delY}`);
+                                        if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                        legalMoves.push(new Vector(tileX, tileY));
+                                    }
+                                } else {
+                                    if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                    legalMoves.push(new Vector(tileX, tileY));
+                                }
+                            }
+                        }
+                    }
+                    mult++;
+                }
+                return legalMoves;
+            }
+            case 'queen': {
+                let mult = 1;
+                let banned = new Set();
+                while (banned.size < 8) {
+                    for (let delX = -1; delX <= 1; delX++) {
+                        for (let delY = -1; delY <= 1; delY++) {
+                            if (delX == 0 && 0 == delY) continue;
+                            if (banned.has(`${delX},${delY}`)) continue;
+                            let tileX = piece.position.x + delX * mult;
+                            let tileY = piece.position.y + delY * mult;
+                            if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) {
+                                banned.add(`${delX},${delY}`);
+                                continue;
+                            }
+                            let tile = this.grid[tileY][tileX];
+                            if (typeof tile == 'object') {
+                                if (tile.color === piece.color) {
+                                    banned.add(`${delX},${delY}`);
+                                    continue;
+                                } else {
+                                    banned.add(`${delX},${delY}`);
+                                    if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                    legalMoves.push(new Vector(tileX, tileY));
                                 }
                             } else {
-                                //Straight left or right
-                                if (typeof grid[piece.position.y + (directionY / count) * (i + 1)][piece.position.x] === 'object') {
-                                    cancelMove = true;
-                                    break;
-                                }
-                            }
-                            //Diagonal
-                        } else {
-                            if (typeof grid[piece.position.y + (directionY / count) * (i + 1)][piece.position.x + (directionX / count) * (i + 1)] === 'object') {
-                                cancelMove = true;
-                                break;
+                                if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                                legalMoves.push(new Vector(tileX, tileY));
                             }
                         }
                     }
+                    mult++;
                 }
-                if (!cancelMove) {
-                    if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(newPos)))) return;
-                    piece.moveOne = false;
-                    let oldX = JSON.parse(JSON.stringify(piece.position.x)),
-                        oldY = JSON.parse(JSON.stringify(piece.position.y));
-                    piece.position = new Vector(newPos.x, newPos.y);
-                    grid[piece.position.y][piece.position.x] = piece;
-                    grid[oldY][oldX] = 'blank';
-                    if (piece.color === 'black') {
-                        board.turn = 'white';
-                    } else {
-                        board.turn = 'black';
+                return legalMoves;
+            }
+            case 'king': {
+                //Normal moves
+                for (let delX = -1; delX <= 1; delX++) {
+                    for (let delY = -1; delY <= 1; delY++) {
+                        if (delX == 0 && 0 == delY) continue;
+                        let tileX = piece.position.x + delX;
+                        let tileY = piece.position.y + delY;
+                        if (tileY < 0 || tileY >= this.grid.length || tileX < 0 || tileX >= this.grid.length) continue;
+                        let tile = this.grid[tileY][tileX];
+                        if (typeof tile == 'object') {
+                            if (tile.color === piece.color) continue;
+                        }
+                        if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(tileX, tileY))))) continue;
+                        legalMoves.push(new Vector(tileX, tileY));
                     }
                 }
-            }
-            if (castleLeft || castleRight) {
-                if (castleRight) {
-                    grid[piece.position.y][piece.position.x - 1] = grid[piece.position.y][piece.position.x + 1];
-                    grid[piece.position.y][piece.position.x + 1] = 'blank';
-                    grid[piece.position.y][piece.position.x - 1].position = new Vector(piece.position.x - 1, piece.position.y);
-                } else {
-                    grid[piece.position.y][piece.position.x + 1] = grid[piece.position.y][piece.position.x - 2];
-                    grid[piece.position.y][piece.position.x - 2] = 'blank';
-                    grid[piece.position.y][piece.position.x + 1].position = new Vector(piece.position.x + 1, piece.position.y);
+                //Castling
+                if (piece.moveOne) {
+                    //Castling attempt
+                    let clear = true;
+                    //Right side castle
+                    for (let i = 1; i <= 3; i++) {
+                        if (i == 3) {
+                            if (typeof this.grid[piece.position.y][piece.position.x + i] != 'object' || !this.grid[piece.position.y][piece.position.x + i].moveOne) clear = false;
+                            continue;
+                        }
+                        if (typeof this.grid[piece.position.y][piece.position.x + i] == 'object') clear = false;
+                    }
+                    if (clear) {
+                        //Right side is clear, if there are no checks I can castle right
+                        for (let i = 1; i <= 2; i++) {
+                            if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(piece.position.x + i, piece.position.y)))))
+                                clear = false;
+                        }
+                    }
+                    //If we are still clear, we are good to castle right
+                    if (clear) legalMoves.push(new Vector(piece.position.x + 2, piece.position.y));
+                    clear = true;
+
+                    //Left side castle
+                    for (let i = -1; i >= -4; i--) {
+                        if (i == -4) {
+                            if (typeof this.grid[piece.position.y][piece.position.x + i] != 'object' || !this.grid[piece.position.y][piece.position.x + i].moveOne) clear = false;
+                            continue;
+                        }
+                        if (typeof this.grid[piece.position.y][piece.position.x + i] == 'object') clear = false;
+                    }
+                    if (clear) {
+                        //Left side is clear, if there are no checks I can castle left
+                        for (let i = -1; i >= -2; i--) {
+                            if (this.willCheck(JSON.parse(JSON.stringify(piece.position)), JSON.parse(JSON.stringify(new Vector(piece.position.x + i, piece.position.y)))))
+                                clear = false;
+                        }
+                    }
+                    //If we are still clear, we are good to castle left
+                    if (clear) legalMoves.push(new Vector(piece.position.x - 2, piece.position.y));
                 }
+                return legalMoves;
             }
+            default:
+                break;
         }
     }
 
@@ -281,7 +394,6 @@ class Board {
                                 banned.add(`${delX},${delY}`);
                             }
                             if (tile.color != board.turn && (tile.type == 'rook' || tile.type == 'queen')) {
-                                console.log(tile);
                                 return true;
                             }
                         }
@@ -293,7 +405,6 @@ class Board {
                                 banned.add(`${delX},${delY}`);
                             }
                             if (tile.color != board.turn && (tile.type == 'bishop' || tile.type == 'queen')) {
-                                console.log(tile);
                                 return true;
                             }
                         }
@@ -313,7 +424,6 @@ class Board {
                             let tile = grid[tileY][tileX];
                             if (typeof tile == 'object') {
                                 if (tile.color != board.turn && tile.type == 'knight') {
-                                    console.log(tile);
                                     return true;
                                 }
                             }
@@ -324,7 +434,6 @@ class Board {
                             let tile = grid[tileY][tileX];
                             if (typeof tile == 'object') {
                                 if (tile.color != board.turn && tile.type == 'king') {
-                                    console.log(tile);
                                     return true;
                                 }
                             }
@@ -336,7 +445,6 @@ class Board {
                                 if (board.turn == 'white' && delY != -1) continue;
                                 if (board.turn == 'black' && delY != 1) continue;
                                 if (tile.color != board.turn && tile.type == 'pawn') {
-                                    console.log(tile);
                                     return true;
                                 }
                             }
