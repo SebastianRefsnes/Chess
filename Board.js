@@ -1,8 +1,6 @@
 class Board {
-    constructor(width = 8, height = 8) {
+    constructor() {
         this.grid = [[]];
-        this.width = width;
-        this.height = height;
         this.sprites = loadImage('Assets/pieces.png');
         this.turn = 'white';
         this.moveCount = 0;
@@ -12,9 +10,9 @@ class Board {
     resetBoard() {
         this.grid = [];
         let line1 = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
-        for (let i = 0; i < this.height; i++) {
+        for (let i = 0; i < 8; i++) {
             this.grid[i] = [];
-            for (let j = 0; j < this.width; j++) {
+            for (let j = 0; j < 8; j++) {
                 if (i == 0) {
                     this.grid[i][j] = new Piece(new Vector(j, i), line1[j], 'black');
                 } else if (i == 1) {
@@ -32,12 +30,11 @@ class Board {
 
     draw(context) {
         //Background
-        let blockSizeX = context.canvas.clientWidth / this.width;
-        let blockSizeY = context.canvas.clientHeight / this.height;
+        let blockSizeX = context.canvas.clientWidth / 8;
+        let blockSizeY = context.canvas.clientHeight / 8;
         context.fillStyle = '#8B4513';
         context.fillRect(0, 0, context.canvas.clientWidth, context.canvas.clientHeight);
         context.fillStyle = 'white';
-        //Background
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if ((j + i + 1) % 2 == 0) {
@@ -60,6 +57,7 @@ class Board {
             context.lineTo(blockSizeX * 8, blockSizeY * i);
             context.stroke();
         }
+        //Highlight legal moves
         if (hiTile != '') {
             const moves = this.getLegalMoves(hiTile);
             context.fillStyle = 'rgba(50,100,45)';
@@ -98,7 +96,6 @@ class Board {
     tryMove(piece, newPos) {
         if (piece.color != this.turn || this.disabled) return;
         let moves = this.getLegalMoves(piece);
-        console.log(moves);
         if (moves.find((move) => JSON.stringify(move) == JSON.stringify(newPos))) {
             if (piece.type == 'king' && Math.abs(piece.position.x - newPos.x) > 1) {
                 //Castle
@@ -153,8 +150,8 @@ class Board {
             } else {
                 this.turn = 'black';
             }
-            this.checkGameOver();
             this.moveCount++;
+            this.checkGameOver();
             hiTile = '';
         }
     }
