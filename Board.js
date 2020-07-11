@@ -353,7 +353,7 @@ class Board {
                     }
                 }
                 //Castling
-                if (piece.moveOne) {
+                if (piece.moveOne && !this.isCheck(undefined, undefined, true)) {
                     //Castling attempt
                     let clear = true;
                     //Right side castle
