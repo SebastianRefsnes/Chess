@@ -19,7 +19,7 @@ window.onmousedown = (e) => {
     let y = e.clientY - rect.top;
     loc = pixelToGrid(new Vector(x, y), canvas.width, canvas.height);
     selectedTile = board.getTile(loc);
-    hiTile = typeof board.getTile(loc) == 'object' ? board.getTile(loc) : '';
+    hiTile = (typeof board.getTile(loc) == 'object' && board.getTile(loc).color == board.turn) ? board.getTile(loc) : '';
     selectedTile.isMoving = true;
 };
 window.onmouseup = (e) => {
