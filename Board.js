@@ -9,6 +9,7 @@ class Board {
 
     resetBoard() {
         this.grid = [];
+        this.turn = "white"
         let line1 = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
         for (let i = 0; i < 8; i++) {
             this.grid[i] = [];
