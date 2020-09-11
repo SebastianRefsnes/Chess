@@ -146,6 +146,7 @@ class Board {
             piece.position = new Vector(newPos.x, newPos.y);
             this.grid[piece.position.y][piece.position.x] = piece;
             this.grid[oldY][oldX] = 'blank';
+            if((piece.position.y == 0 || piece.position.y == 7) && piece.type == "pawn") piece.type = "queen";
             if (piece.color === 'black') {
                 this.turn = 'white';
             } else {
